@@ -1,0 +1,10 @@
+services:
+  searxng:
+    image: searxng/searxng:latest
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./docker/searxng:/etc/searxng
+    environment:
+      SEARXNG_SECRET: ${SEARXNG_SECRET:?Secret is required}
+    restart: unless-stopped
