@@ -9,7 +9,7 @@ from finscope.config import BaseAgentSettings
 def create_chat_model(
         settings: BaseAgentSettings,
 ) -> BaseChatModel:
-    if settings.model == "groq":
+    if settings.provider == "groq":
         return ChatGroq(
             model=settings.model,
             api_key=settings.api_key,
@@ -17,7 +17,7 @@ def create_chat_model(
             timeout=settings.timeout_seconds
         )
 
-    if settings.model == "openai":
+    if settings.provider == "openai":
         return ChatOpenAI(
             model=settings.model,
             api_key=settings.api_key,
@@ -28,4 +28,7 @@ def create_chat_model(
     return ChatOllama(
         model=settings.model,
         temperature=settings.temperature,
+        client_kwargs={
+            "timeout": settings.timeout_seconds,
+        },
     )
