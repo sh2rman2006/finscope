@@ -12,7 +12,6 @@ dependencies = [
     # LLM providers
     "langchain-groq>=1,<2",
     # Web research
-    "crawl4ai>=0.9,<1",
     "httpx>=0.28,<1",
     # Configuration and validation
     "pydantic>=2,<3",

@@ -21,3 +21,9 @@ class WebResearchAgentSettings(BaseAgentSettings):
     model_config = SettingsConfigDict(
         env_prefix="WEB_RESEARCH_",
     )
+
+
+class WebScrapingSettings(BaseSettings):
+    base_url: str = Field(default="http://localhost:11235")
+    api_token: SecretStr
+    timeout_seconds: int

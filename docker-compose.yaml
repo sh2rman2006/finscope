@@ -8,3 +8,15 @@ services:
     environment:
       SEARXNG_SECRET: ${SEARXNG_SECRET:?Secret is required}
     restart: unless-stopped
+
+  crawl4ai:
+    image: unclecode/crawl4ai:latest
+    ports:
+      - "127.0.0.1:11235:11235"
+    environment:
+      CRAWL4AI_API_TOKEN: ${WEB_SCRAPING_API_TOKEN:?Token is required}
+    shm_size: "1gb"
+    restart: unless-stopped
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
