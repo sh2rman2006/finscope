@@ -15,6 +15,7 @@ services:
       - "127.0.0.1:11235:11235"
     environment:
       CRAWL4AI_API_TOKEN: ${WEB_SCRAPING_API_TOKEN:?Token is required}
+      CRAWL4AI_ALLOW_INTERNAL_URLS: "true"
     shm_size: "1gb"
     restart: unless-stopped
     dns:

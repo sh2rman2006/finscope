@@ -1,9 +1,16 @@
+import asyncio
+
 from langchain.agents import create_agent
 from langchain_core.language_models import BaseChatModel
 
+from finscope.agents.web_research.prompts import WEB_RESEARCH_SYSTEM_PROMPT
+from finscope.agents.web_research.settings import WebResearchAgentSettings
 from finscope.agents.web_research.tools import build_web_research_tools
+from finscope.capabilities.web_scraping.factory import create_web_scraping_service
 from finscope.capabilities.web_scraping.service import WebScrapingService
+from finscope.capabilities.web_search.factory import create_web_search_service
 from finscope.capabilities.web_search.service import WebSearchService
+from finscope.llm import create_chat_model
 
 
 def build_web_research_agent(
@@ -17,4 +24,42 @@ def build_web_research_agent(
             web_search_service,
             web_scraping_service,
         ),
+        system_prompt=WEB_RESEARCH_SYSTEM_PROMPT
     )
+
+
+async def main():
+    settings = WebResearchAgentSettings()
+    model = create_chat_model(settings=settings)
+
+    async with (
+        create_web_search_service() as search_service,
+        create_web_scraping_service() as scraping_service,
+    ):
+        agent = build_web_research_agent(
+            model=model,
+            web_search_service=search_service,
+            web_scraping_service=scraping_service,
+        )
+
+        result = await agent.ainvoke(
+            {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": (
+                            "Исследуй последние финансовые "
+                            "результаты NVIDIA."
+                        ),
+                    }
+                ]
+            },
+            config={"recursion_limit": 30},
+        )
+
+        for message in result["messages"]:
+            message.pretty_print()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

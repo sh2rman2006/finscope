@@ -1,12 +1,15 @@
 import datetime
 
 import httpx
+import structlog
 from httpx import AsyncClient
 from pydantic import ValidationError
 
 from finscope.capabilities.web_scraping.exceptions import WebScrapingTimeoutError, WebScrapingFailedError, \
     WebScrapingInvalidResponseError
 from finscope.capabilities.web_scraping.schemas import ScrapeRequest, ScrapeResult
+
+logger = structlog.get_logger(__name__)
 
 
 class WebScrapingService:
@@ -32,10 +35,16 @@ class WebScrapingService:
                 "Web scraping timed out"
             ) from exc
 
-        except httpx.HTTPStatusError as exc:
+        except httpx.HTTPStatusError as e:
+            logger.error(
+                "web_scraping_http_error",
+                status_code=e.response.status_code,
+                response_body=e.response.text[:2000],
+                target_url=str(request.url),
+            )
             raise WebScrapingFailedError(
-                f"Web scrap returned HTTP {exc.response.status_code}"
-            ) from exc
+                f"Web scraping returned HTTP {e.response.status_code}"
+            ) from e
 
         except httpx.RequestError as exc:
             raise WebScrapingFailedError(

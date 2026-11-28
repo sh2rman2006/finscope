@@ -1,9 +1,10 @@
 from langchain_core.language_models import BaseChatModel
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
 
-from finscope.config import BaseAgentSettings
+from finscope.agents.settings import BaseAgentSettings
 
 
 def create_chat_model(
@@ -23,6 +24,14 @@ def create_chat_model(
             api_key=settings.api_key,
             temperature=settings.temperature,
             timeout=settings.timeout_seconds
+        )
+
+    if settings.provider == "google":
+        return ChatGoogleGenerativeAI(
+            model=settings.model,
+            api_key=settings.api_key,
+            temperature=settings.temperature,
+            timeout=settings.timeout_seconds,
         )
 
     return ChatOllama(
