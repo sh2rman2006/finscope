@@ -1,3 +1,7 @@
+from langchain.agents.middleware import dynamic_prompt, ModelRequest
+
+from finscope.agents.web_research.context import WebResearchContext
+
 WEB_RESEARCH_SYSTEM_PROMPT = """
 You are a web research agent within FinScope, a multi-agent
 financial research system.
@@ -66,3 +70,14 @@ Return a concise research report containing:
 Associate material claims with their supporting sources.
 Respond in the language of the research request.
 """
+
+
+@dynamic_prompt
+def research_prompt(
+        request: ModelRequest[WebResearchContext],
+) -> str:
+    return (
+            WEB_RESEARCH_SYSTEM_PROMPT
+            + f"\n\nCurrent date: {request.runtime.context.current_date.isoformat()}"
+            + "\nEvaluate the freshness of information relative to this date."
+    )

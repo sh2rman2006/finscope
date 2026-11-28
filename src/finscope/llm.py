@@ -32,6 +32,7 @@ def create_chat_model(
             api_key=settings.api_key,
             temperature=settings.temperature,
             timeout=settings.timeout_seconds,
+            client_args={"trust_env": False},
         )
 
     return ChatOllama(

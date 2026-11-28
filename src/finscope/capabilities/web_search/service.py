@@ -4,7 +4,7 @@ from httpx import AsyncClient
 from pydantic import ValidationError
 
 from finscope.capabilities.web_search.exceptions import WebSearchTimeoutError, WebSearchUnavailableError, \
-    WebSearchInvalidResponseError
+    WebSearchInvalidResponseError, WebSearchDegradedError
 from finscope.capabilities.web_search.schemas import SearchRequest, SearchResult
 
 logger = structlog.get_logger(__name__)
@@ -76,6 +76,12 @@ class WebSearchService:
         if not isinstance(results, list):
             raise WebSearchInvalidResponseError(
                 "Expected 'results' to be a list"
+            )
+
+        if not results and unresponsive_engines:
+            raise WebSearchDegradedError(
+                "No search results returned and some search engines "
+                "are unavailable."
             )
 
         search_results: list[SearchResult] = []

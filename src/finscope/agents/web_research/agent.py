@@ -1,9 +1,12 @@
 import asyncio
 
 from langchain.agents import create_agent
+from langchain.agents.middleware import ToolCallLimitMiddleware
 from langchain_core.language_models import BaseChatModel
 
-from finscope.agents.web_research.prompts import WEB_RESEARCH_SYSTEM_PROMPT
+from finscope.agents.web_research.context import WebResearchContext
+from finscope.agents.web_research.middleware import handle_tool_errors
+from finscope.agents.web_research.prompts import research_prompt
 from finscope.agents.web_research.settings import WebResearchAgentSettings
 from finscope.agents.web_research.tools import build_web_research_tools
 from finscope.capabilities.web_scraping.factory import create_web_scraping_service
@@ -24,7 +27,21 @@ def build_web_research_agent(
             web_search_service,
             web_scraping_service,
         ),
-        system_prompt=WEB_RESEARCH_SYSTEM_PROMPT
+        context_schema=WebResearchContext,
+        middleware=[
+            research_prompt,
+            handle_tool_errors,
+            ToolCallLimitMiddleware(
+                tool_name="web_search",
+                run_limit=5,
+                exit_behavior="continue",
+            ),
+            ToolCallLimitMiddleware(
+                tool_name="web_scrape",
+                run_limit=3,
+                exit_behavior="continue",
+            ),
+        ],
     )
 
 
@@ -54,6 +71,7 @@ async def main():
                     }
                 ]
             },
+            context=WebResearchContext(),
             config={"recursion_limit": 30},
         )
 

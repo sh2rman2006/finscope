@@ -12,3 +12,7 @@ class WebSearchUnavailableError(WebSearchError):
 
 class WebSearchInvalidResponseError(WebSearchError):
     pass
+
+
+class WebSearchDegradedError(WebSearchError):
+    pass
